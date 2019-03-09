@@ -1,3 +1,27 @@
+"""
+Michael Altschuler
+Created: 3/9/2019
+Updated: 3/9/2019
+
+outline.py
+create a heirarchical structure of sentences
+
+Approach #1:
+kmeans merge clustering which clusters by euclidean distance
+Design choices:
+    used euclidean distance for clustering, scoring, and for picking centroid sentence (better to use cosine similarities)
+    user has to give the original number of clusters to be merged (better to let number be dictated by number of paragraphs or number of keywords rather than arbitrary)
+    use silhoutte score when deciding what should be the next number of clusters
+    uses kmeans clustering
+    picks a sentence out of a cluster to be the parent node
+
+
+Pre-compilation:
+pip install numpy
+pip install sklearn
+pip install scipy
+"""
+
 from sklearn.cluster import KMeans
 import numpy as np
 from graph import Graph, Table
@@ -5,14 +29,21 @@ from scipy.spatial import distance
 from sklearn import metrics
 
 def kmeans_merge_clustering(sentences, vectors, num_clusters):
-    """
-    Purpose: recursively merge the clusters together so that a graph of sentences is formed
+    """recursively merge the clusters together so that a graph of sentences is formed
     ***************************************************************************************
     design choices:
         used kmeans (alternative: other possible clustering algorithms
         initial parameter is num_clusters (alternative: could be branching factor, try to develop a way so that there is no parameter, use keyphrase candidate as initial num_clusters)
         pick one node as the root: 1 sentence summary
-		use sentences in multiple groups in growth towards heirarchy
+        use sentences in multiple groups in growth towards heirarchy
+    ***************************************************************************************
+    
+    Preconditions:
+    sentences -- list -- a list of sentences
+    vectors -- 2d numpy array -- sentence embeddings
+    num_clusters -- int -- the number of leaf clusters
+    Postconditions:
+    returns Graph() -- where nodes are sentences, and edges show parent child relationship
     """
     #construct Graph structure to return at end of method
     graph = Graph()
@@ -71,11 +102,18 @@ def kmeans_merge_clustering(sentences, vectors, num_clusters):
             num_clusters = find_ideal_num_clusters(vectors_to_be_clustered, num_clusters)
 
 def find_closest_vector(center, vectors):
-    """
-    Purpose: find v from vectors that is closest to the center
+    """find v from vectors that is closest to the center
+    
     ***********************************************************
     design choices:
         used cosing similiarity over euclidean distance for comparison metric
+    ************************************************************************************
+    
+    Preconditions:
+    center -- 1D numpy array -- centroid of cluster
+    vectors -- 2D numpy array -- set of vectors
+    Postconditions:
+    returns 1D numpy array -- one that is closest to the centroid
     """
     min_distance = 100
     min_vector = None
@@ -87,13 +125,20 @@ def find_closest_vector(center, vectors):
     return min_vector
 
 def find_ideal_num_clusters(vectors, num_clusters):
-    """
-    Purpose: heuristic of find the optimal number of clusters based off silhouette score
+    """heuristic of find the optimal number of clusters based off silhouette score
+    
     ************************************************************************************
     desgin choices:
         if num clusters is 1, 2, or 3, just use 1 cluster (ALTERNATIVE: only do this if 1 or 2)
         otherwise, test the number of clusters from 2 to n - 1 (ALTERNATIVE: make upper limit int(n / 2) + 1)
-        use silhouette_score as metric to determine optimal number of clusters (ALTERNATIVE: use other sklearn metric)  
+        use silhouette_score as metric to determine optimal number of clusters (ALTERNATIVE: use other sklearn metric)
+    ************************************************************************************
+    
+    Preconditions:
+    vectors -- numpy 2D array -- vectors to be clustered
+    num_clusters -- int -- number of clusters used on previous iterations
+    Postconditions
+    returns int -- ideal number of clusters
     """
     
     #if num_clusters is less than 4, then only 1 cluster will be used
@@ -118,6 +163,7 @@ def find_ideal_num_clusters(vectors, num_clusters):
     
     
 #main method for testing functionality
+#FIXME: use recommended unit testing for python
 if __name__ == "__main__":
     #setup
     vecs = np.array([[1, 1], [2, 2], [3, 3], [4, 4], [5, 5], [6, 6], [7, 7], [8, 8], [9, 9], [11, 11], [12, 12], [13, 13], [14, 14], [15, 15], [16, 16], [17, 17], [18, 18], [19, 19]])
