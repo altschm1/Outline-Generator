@@ -1,6 +1,24 @@
-import graph
+"""
+Michael Altschuler
+Created: 3/9/2019
+Updated: 3/9/2019
+
+output.py
+given a graph, create html file
+"""
+
+from data_structures import Graph
 
 def create_output(file_name, graph):
+    """create html file to represent graph
+    
+    Preconditions:
+    file_name -- string -- name of html file to create
+    graph -- Graph -- graph structure of sentences
+    Postondition:
+    returns Nothing
+    creates html file in same directory 
+    """
     f = open(file_name + ".html", "w+")
     f.write("<!DOCTYPE html>")
     f.write("<html><body><ul>")
@@ -8,8 +26,9 @@ def create_output(file_name, graph):
     f.write("</ul></body></html>")    
     f.close()
 
+# TEST
 if __name__ == "__main__":
-    graph = graph.Graph()
+    graph = Graph()
     graph.add_node("Root**")
     graph.add_node("Suptopic1*")
     graph.add_node("Suptopic2*")
