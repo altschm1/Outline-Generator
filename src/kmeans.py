@@ -182,7 +182,7 @@ class kmeans:
                 # pre_slope = current_slope
         
         max_slope = wcss_dict[max - 1] - wcss_dict[1]
-        threshold = 0.1 * max_slope
+        threshold = 0.025 * max_slope
         best_num_clusters = 1
         # print(wcss_dict)
         for key in range(1, max - 1):
@@ -210,6 +210,8 @@ class kmeans:
         parent_vectors = []
         
         labels, centroids = self.train(vectors, num_clusters)
+        # print("labels: ", labels)
+        # print("centroids: ", centroids)
         
         label_dict = {}
         for i in range(num_clusters):
@@ -237,6 +239,7 @@ class kmeans:
             graph.set_root(parent_sentences[0])
             return graph
         else:
+            # graph.print()
             return self.kmeans_merge_clustering(parent_sentences, vectors, graph)
         
     def find_closest_vector(self, centroid, vectors):
@@ -284,7 +287,7 @@ if __name__ == "__main__":
     
     # print(clusterer.pick_number_clusters(vecs_a))
     
-    vecs = np.array([[1, 1], [2, 0], [14, 3], [4, 6], [3, 5], [6, 6], [7, 7], [8, 8], [9, 3], [11, 44], [44, 12], [76, 13], [14, 14], [15, 15], [16, 16], [17, 9], [18, 14], [19, 19]])
+    vecs = np.array([[0, 0], [2, 0], [14, 3], [4, 6], [3, 5], [6, 6], [7, 7], [8, 8], [9, 3], [11, 44], [44, 12], [76, 13], [14, 14], [15, 15], [16, 16], [17, 9], [18, 14], [19, 19]])
     num_rows = vecs.shape[0]
     sents = []
     for i in range(num_rows):
