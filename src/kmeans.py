@@ -1,3 +1,16 @@
+"""
+Michael Altschuler
+Created: 3/11/2019
+Updated: 3/11/2019
+
+kmeans.py
+Performs the outlining tasks
+
+Pre-compilation (make sure to have the following downloaded):
+pip install scipy
+pip install numpy
+"""
+
 import numpy as np
 import copy
 from scipy.spatial.distance import cosine
@@ -5,10 +18,17 @@ import random
 import math
 from data_structures import Graph, Table
 
-#FIXME: implement elbow method for picking clusters
-
-class kmeans:    
+class kmeans:
+    """class which uses k_means to merge clusters together recursively"""
+    
     def get_distance_matrix(self, vectors):
+        """returns the distance vector which shows the distance from each vector from each other
+        
+        Preconditions:
+        vectors -- 2D numpy array -- vectors
+        Postconditions:
+        returns 2d numpy array -- shows distance of each vector from each other
+        """
         output = np.empty(shape = (vectors.shape[0], vectors.shape[0]))
         for v_1 in range(len(vectors)):
             for v_2 in range(len(vectors)):
@@ -16,6 +36,13 @@ class kmeans:
         return output
     
     def get_max_num_clusters(self, vectors):
+        """returns the maximum number of clusters based on distance matrix
+        
+        Preconditions:
+        vectors -- 2D numpy array -- vectors
+        Postconditions:
+        returns int -- max number of clusters
+        """
         matrix = self.get_distance_matrix(vectors)
         max = 0
         for m in matrix:
@@ -24,6 +51,15 @@ class kmeans:
         return max
     
     def get_wcss(self, vectors, labels, centroids):
+        """returns with within cluster squared sums
+        
+        Preconditions:
+        vectors -- 2D numpy array -- vectors
+        labels -- 1D numpy array -- the label corresponding to vectors
+        centroids -- the centroids
+        Postconditions:
+        returns int -- returns within cluster sum squares       
+        """
         within_cluster_ss = 0
         for c in range(len(centroids)):
             for v in range(len(vectors)):
@@ -33,7 +69,14 @@ class kmeans:
                     
             
     def initialize_points(self, vectors, num_clusters):
-        """pick the initial k random points for the cluster using kmeans"""
+        """pick the initial k random points for the cluster using kmeans++
+        
+        Preconditions:
+        vectors -- 2D numpy array -- vectors
+        num_clusters -- int -- the number of clusters
+        Postconditions:
+        returns 2D numpy array -- the initial centroid points
+        """
         # randomly select the first centroid center
         i = random.randint(0, vectors.shape[0] - 1)
         
@@ -78,7 +121,15 @@ class kmeans:
         return centroids
     
     def cluster(self, vectors, num_clusters, max_iter = 500):
-        """cluster the vectors into num_clusters clusters"""
+        """cluster the vectors into num_clusters clusters
+        
+        Preconditions:
+        vectors -- 2D numpy array -- vectors
+        num_clusters -- int -- number of clusters
+        max_iter -- int (default 500) -- the number of iterations that centroids recalculated at most
+        Postconditions:
+        returns [bool, labels, centroids] -- True if success, 1D numpy array giving labels, 2D numpy array of centroids
+        """
         # initialize centroids
         centroids = self.initialize_points(vectors, num_clusters)
         pre_centroids = np.array(centroids, copy = True)
@@ -120,8 +171,17 @@ class kmeans:
         
         return True, labels, centroids
     
-    def train(self, vectors, num_clusters, max_iter = 500, iterations = 100):
-        """perform multiple  iterations to determine the best labels and centroids"""
+    def train(self, vectors, num_clusters, max_iter = 500, iterations = 50):
+        """perform multiple  iterations of clustering to determine the best labels and centroids
+        
+        Preconditions:
+        vectors -- 2D numpy array -- vectors
+        num_clusters -- int -- number of clusters
+        max_iter -- int (default 500) -- the number of iterations that centroids recalculated at most
+        iterations -- int (default 50) -- the amount of testing to find best centroids/labels based off min wcss
+        Postconditions:
+        returns [labels, centroids] -- 1D numpy array giving labels, 2D numpy array of centroids
+        """
         best_labels = None
         best_centroids = None
         min_score = float("inf")
@@ -146,49 +206,32 @@ class kmeans:
     
     def pick_number_clusters(self, vectors, max_iter = 500, iterations = 10):
         """determine what is the best number of clusters using elbow method
-        once the change in wcss is below a minimum threshold"""
+        once the change in wcss is below a minimum threshold
+        
+        Preconditions:
+        num_clusters -- int -- number of clusters
+        max_iter -- int (default 500) -- the number of iterations that centroids recalculated at most
+        iterations -- int (default 10) -- test 10 times to find centroids
+        Postconditions:
+        returns int -- best number of clusters using elbow method
+        """
         wcss_dict = {}
         
         max = self.get_max_num_clusters(vectors)
-        # print("max", max)
         
         if max == 1:
             return max
         
-        # test all values of clusters from 2 to (n - 1)
+        # test all values of clusters from 1 to (n - 1) and get wcss
         for k in range(1, max):
-        
             labels, centroids = self.train(vectors, k, max_iter, iterations)
             wcss_dict[k] = self.get_wcss(vectors, labels, centroids)
-            
-        # find the slope
-        # best_num_clusters = 0
-        # current_slope = None
-        # pre_slope = None
-        # for key1, key2 in zip(range(1, max - 1), range(2, max)):
-            # current_slope = math.fabs(wcss_dict[key2] - wcss_dict[key1])
-            # print(key1)
-            # print(current_slope)
-            # print(pre_slope)
-            # print()
-            
-            # if pre_slope == None:
-                # pre_slope = current_slope
-                # best_num_clusters = 1
-            # else:
-                # if pre_slope > 1.25 * current_slope:
-                    # best_slope = current_slope
-                    # best_num_clusters = key1
-                # pre_slope = current_slope
         
+        # do elbow method heuristic
         max_slope = wcss_dict[max - 1] - wcss_dict[1]
         threshold = 0.025 * max_slope
         best_num_clusters = 1
-        # print(wcss_dict)
         for key in range(1, max - 1):
-            # print(str(wcss_dict[key + 1] - wcss_dict[key]))
-            # print(threshold)
-            # print()
             if wcss_dict[key + 1] - wcss_dict[key] > threshold:
                 best_num_clusters = key + 1
                 break
@@ -196,6 +239,17 @@ class kmeans:
         return best_num_clusters
     
     def kmeans_merge_clustering(self, sentences, vectors, graph = None, num_clusters = None):
+        """does recursive kmeans merge clustering
+        
+        Preconditions:
+        sentences -- list -- list of sentences
+        vectors -- 2d numpy array -- vectors
+        graph -- Graph() -- for recursion
+        num_clusters -- int -- number of clusters
+        Postconditions:
+        returns graph (Graph()) structure of sentence nodes
+        """
+        
         if num_clusters == None:
             num_clusters = self.pick_number_clusters(vectors)
         
@@ -210,8 +264,6 @@ class kmeans:
         parent_vectors = []
         
         labels, centroids = self.train(vectors, num_clusters)
-        # print("labels: ", labels)
-        # print("centroids: ", centroids)
         
         label_dict = {}
         for i in range(num_clusters):
@@ -235,20 +287,16 @@ class kmeans:
         
         vectors = np.array(parent_vectors, copy = True)
         
+        # base case
         if num_clusters == 1:
             graph.set_root(parent_sentences[0])
             return graph
+        # recursive case
         else:
-            # graph.print()
             return self.kmeans_merge_clustering(parent_sentences, vectors, graph)
         
     def find_closest_vector(self, centroid, vectors):
         """find v from vectors that is closest to the center
-        
-        ***********************************************************
-        design choices:
-            used cosing similiarity over euclidean distance for comparison metric
-        ************************************************************************************
         
         Preconditions:
         center -- 1D numpy array -- centroid of cluster
@@ -267,25 +315,6 @@ class kmeans:
 
 if __name__ == "__main__":
     clusterer = kmeans()
-    # vecs_a = np.array([[1.0, 0.5], [2.0, 0.5], [3.0, 0.5], [4.0, 0.5], [5.0, 0.5], [6.0, 0.5], [7.0, 0.5], [8.0, 0.5], [9.0, 0.5], [10.0, 0.5]])
-    # vecs_b = np.array([[1.0, 0.5], [2.0, 1.0], [3.0, 1.5], [3.0, 0.5], [4.0, 0.5], [5.0, 0.5]])
-    # vecs_c = np.array([[1.0, 0.5], [1.0, 0.5], [1.0, 0.5], [1.0, 0.5], [1.0, 0.5]])
-    # vecs_d = np.array([[1.0, 1.0]])
-    
-    #TESTING initialize_points(vecs, num_clusters)
-    # for i in range(1, 2):
-        # print(clusterer.initialize_points(vecs_a, i))
-        # print()
-        # print(clusterer.initialize_points(vecs_b, i))
-        # print()
-        # print(clusterer.initialize_points(vecs_c, i))
-        # print()
-
-    # print(clusterer.initialize_points(vecs_d, 1))
-    
-        # print(clusterer.train(vecs_d, i))
-    
-    # print(clusterer.pick_number_clusters(vecs_a))
     
     vecs = np.array([[0, 0], [2, 0], [14, 3], [4, 6], [3, 5], [6, 6], [7, 7], [8, 8], [9, 3], [11, 44], [44, 12], [76, 13], [14, 14], [15, 15], [16, 16], [17, 9], [18, 14], [19, 19]])
     num_rows = vecs.shape[0]
