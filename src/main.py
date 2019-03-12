@@ -10,8 +10,10 @@ driver program
 import sys
 import preprocessing
 import vector
-import outline
+# import outline
 import output
+import kmeans
+import numpy as np
 
 def get_input(filename):
     """get string from filename"""
@@ -31,15 +33,28 @@ def preprocess_text(text):
 def vectorize(option, sentences, vocab):
     """convert sentences into vector form"""
     if option.lower() == "bow":
-        return vector.convert_bow(sentences, vocab)
+        vecs = vector.convert_bow(sentences, vocab)
     elif option.lower() == "doc2vec":
-        return vector.convert_doc2vec(sentences)
+        vecs = vector.convert_doc2vec(sentences)
     else:
         raise "Not proper input for option"
+    
+    #remove zero vectors/sentences
+    #first remove all zero sentences and zero vectors
+    for i in range(len(sentences)):
+        if np.all(vecs[i] == 0):
+            sentences.pop(i)
+    vecs = vecs[~np.all(vecs == 0, axis = 1)]
+    
+    # print(type(vecs))
+    # print(vecs)
+    return vecs, sentences
+    
 
 def outline_vectors(sentences, vectors):
     """return Graph structure to heircharchically cluster the sentences"""
-    return outline.kmeans_merge_clustering(sentences, vectors, 4)
+    clusterer = kmeans.kmeans()
+    return clusterer.kmeans_merge_clustering(sentences, vectors)
 
 def create_output(output_file, graph):
     """create html file"""
@@ -54,7 +69,7 @@ def main(filename):
     sentences, vocab = preprocess_text(text)
     
     # get 2d numpy array
-    vectors = vectorize("bow", sentences, vocab)
+    vectors, sentences = vectorize("bow", sentences, vocab)
     
     # get outline structure
     graph = outline_vectors(sentences, vectors)
@@ -64,8 +79,9 @@ def main(filename):
     
     text = get_input(filename)
     sentences, vocab = preprocess_text(text)
-    vectors = vectorize("doc2vec", sentences, vocab)
+    vectors, sentences = vectorize("doc2vec", sentences, vocab)
     graph = outline_vectors(sentences, vectors)
+    # graph.print()
     create_output("dummy4", graph)
 
 if __name__ == "__main__":
