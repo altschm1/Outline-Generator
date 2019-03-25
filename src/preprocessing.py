@@ -190,6 +190,16 @@ def extract_vocab(text):
     vocab = set(remove_stop_words(text))
     return list(vocab)
 
+def remove_duplicate_sentences(sentences):
+    """removes all duplicate sentences
+    
+    Precondition:
+    sentences -- list -- a list of sentences
+    Postconditions:
+    returns list -- list of non-duplicate sentences
+    """
+    return list(set(sentences))
+
      
 # For testing purposes
 #FIXME: REPLACE WITH PYTHON RECOMMENDED UNIT TESTS

@@ -19,39 +19,39 @@ class Graph:
     """Graph data structure
     """
     def __init__(self):
-    """constructor
-    root -- root of the graph
-    nodes -- list of nodes in the graph
-    child_edges -- dictionary where key is parent node and value is list of children
-    """
+        """constructor
+        root -- root of the graph
+        nodes -- list of nodes in the graph
+        child_edges -- dictionary where key is parent node and value is list of children
+        """
         self.root = None
         self.nodes = []
         self.child_edges = {}
     
     def set_root(self, root):
-    """set the root of the graph"""
+        """set the root of the graph"""
         self.root = root
     
     def add_node(self, node):
-    """add a node to the graph"""
+        """add a node to the graph"""
         self.nodes.append(node)
         self.child_edges[node] = []
     
     def remove_node(self, node):
-    """remove a node from the graph"""
+        """remove a node from the graph"""
         self.nodes.remove(node)
         del self.child_edges[node]
     
     def add_child_edges(self, node, child):
-    """add an edge from node (parent) to child (child)"""
+        """add an edge from node (parent) to child (child)"""
         self.child_edges[node].append(child)
     
     def remove_child_edges(self, node):
-    """remove all edges from a node"""
+        """remove all edges from a node"""
         self.child_edges[node] = []
     
     def print(self):
-    """BFS search to print out all nodes"""
+        """BFS search to print out all nodes"""
         queue = []
         queue.append(self.root)
         while len(queue) != 0:
@@ -61,7 +61,7 @@ class Graph:
                 queue.append(c)
 
     def dfs_print(self):
-    """DFS search to print out all nodes"""
+        """DFS search to print out all nodes"""
         queue = []
         queue.append(self.root)
         while len(queue) != 0:
@@ -71,7 +71,7 @@ class Graph:
                 queue.append(c)
     
     def to_html_structure(self, node):
-    """print out content of graph into nested list html structure"""
+        """print out content of graph into nested list html structure"""
         result = ""
         result = result + self.write_node(node)
         result = result + "<ul>"
@@ -82,7 +82,7 @@ class Graph:
         return result
     
     def write_node(self, node):
-    """return node as a list item"""
+        """return node as a list item"""
         return "<li>" + node + "</li>"
         
         

@@ -10,7 +10,6 @@ driver program
 import sys
 import preprocessing
 import vector
-# import outline
 import output
 import kmeans
 import numpy as np
@@ -46,8 +45,6 @@ def vectorize(option, sentences, vocab):
             sentences.pop(i)
     vecs = vecs[~np.all(vecs == 0, axis = 1)]
     
-    # print(type(vecs))
-    # print(vecs)
     return vecs, sentences
     
 

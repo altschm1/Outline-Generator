@@ -34,14 +34,14 @@ def _convert_bag_word_vector(sentence, vocab):
     Postconditions:
     returns numpy array shape(1, len(vocab)) -- sentence embedding using bow
     """
-    result = np.zeros(len(vocab), dtype = int)
+    result = np.zeros(len(vocab), dtype = float)
     
     sorted_vocab = sorted(vocab)
     
     for x in range(len(sorted_vocab)):
         for s in sentence:
             if sorted_vocab[x] == s:
-                result[x] = result[x] + 1
+                result[x] = result[x] + 1.0
     return result
 
 def convert_bow(sentences, vocab):
@@ -53,7 +53,7 @@ def convert_bow(sentences, vocab):
     Postconditions:
     returns numpy array shape(2, len(vocab)) -- sentence embeddings using bow
     """
-    result = np.zeros(dtype = int, shape=(len(sentences), len(vocab)))
+    result = np.zeros(dtype = float, shape=(len(sentences), len(vocab)))
     
     for i, s in enumerate(sentences):
         result[i] = _convert_bag_word_vector(word_tokenize(s.lower()), vocab)
